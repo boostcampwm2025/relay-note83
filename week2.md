@@ -263,3 +263,162 @@ README의 가장 상단에 이 프로젝트가 무엇을 하는 프로젝트인
 실제로 거북목 스트레칭을 했을 때 매우 시원한 느낌이 들었다. 목 주변의 근육을 풀어주는 느낌이 들었고, 눈도 좀 맑아진 것 같다.
 
 미션 수행 기준이 주5회지만 한 번밖에 하지 못 했다. 스트레칭은 미션으로만 하는 것이 아니라 평소에도 자주 해 줘야 겠다는 생각이 들었다. 매우 좋은 미션!
+
+# J297 황용진 수행 결과
+## **✅ 퀘스트 1. README.md 정리에 대한 AI 피드백 받기**
+
+- **선택 이유**: 평소에 나의 글솜씨가 별로 좋지 않다고 생각해서, 문맥적으로 매끄러우면서 다른사람이 봤을 때, 가독성이 좋게끔 문서화를 시키고 싶었습니다. 그래서 README.md 정리에 대한 피드백을 AI의 도움을 받아 설명하는 글의 문맥도 다듬고, 가독성이 좋아지도록 마크다운 문법을 이쁘게 정리하고, 특정 내용에 대해 추가적으로 보충할 사항이 있으면 그 내용에 대해 알려주는 등 좋은 문서화에 대해서 도움을 요청하였습니다.
+
+- **활동 후 느깐점**: 저는 Day13의 미션인 버전 관리 도구 미션을 수행한 결과를 README.md에 작성하고 그에 대한 피드백을 받았습니다. AI의 피드백을 반영하여 더 좋은 문서를 작성하고 피어세션때 공유하고자 하였으나, 프롬프트가 익숙하지 않은지 조금 실망스러운 결과가 나왔습니다.😅 그래도 목차에 대해서는 참고할만한 부분이 있어서 목차를 새롭게 다듬는 데 도움은 되었던 것 같습니다. 다음에 이 퀘스트를 받으신 분은 `학습정리.md`파일도 올려서 공부한 내용도 보기좋게 정리를 해보고 공부 내용에 대해 퀴즈를 만들어보는 것도 괜찮을 것 같습니다. 해당 퀘스트는 정말 강추 !! 👍👍
+
+- **프롬프트 내용**
+
+<img width="540" height="630" alt="image" src="https://github.com/user-attachments/assets/1c906076-3b39-4003-9d16-a73f548bb8fb" />
+
+```md
+# Git 동작 시뮬레이션 프로젝트
+
+## 1️⃣ 학습 목표
+
+* Git 내부 구조와 객체 저장 방식을 이해하고 구현할 수 있습니다.
+* 파일 시스템과 소스 관리에 필요한 핵심 개념을 습득합니다.
+* 짝 프로그래밍을 통해 설계와 구현 과정을 함께 고민합니다.
+
+## 2️⃣ 기능 요구사항
+
+* `.git` 디렉토리 내부 파일을 분석하는 도구를 개발합니다.
+* Node.js 기반 콘솔 명령어로 `sha256`과 `zlib`을 활용하여 Git 주요 명령어를 시뮬레이션합니다.
+
+  * **필수 구현**: `init`, `add`, `commit`, `log`
+  * **향후 확장**: `branch`, `switch`, `status`, `clone`
+
+## 3️⃣ 설계
+
+![아키텍처 다이어그램](./assets/design-diagram.png)
+
+### 3.1 명령어 파서
+
+* 사용자 입력을 파싱하여 `command`와 `args`를 추출합니다.
+* 유효하지 않은 입력 시 예외를 발생시킵니다.
+* 파싱 예시:
+
+  ```js
+  // 입력: git add README.md
+  { command: 'add', args: ['README.md'] }
+  ```
+
+### 3.2 이벤트 기반 명령 처리
+
+* `EventEmitter`를 사용하여 명령어별 이벤트를 정의하고 처리합니다.
+* 주요 이벤트: `git-init`, `git-add`, `git-commit`, `git-log` 등
+* 각 이벤트의 핸들러는 `src/commands/` 디렉터리에 모듈화되어 있습니다.
+
+## 4️⃣ Git 객체 모델
+
+### 4.1 Blob
+
+* 파일 내용을 저장하는 객체입니다.
+* 형식: `blob <크기>\0<파일 데이터>`
+* zlib로 압축 후 `.git/objects/`에 저장합니다.
+
+### 4.2 Tree
+
+* 디렉토리 구조를 저장하는 객체입니다.
+* 각 Entry: `<mode> <파일명>\0<hash>`
+* 형식: `tree <크기>\0<Entry 배열>`
+* zlib로 압축 후 저장합니다.
+
+### 4.3 Commit
+
+* 커밋 메타데이터와 루트 트리를 참조합니다.
+* 필드: tree, parent\*(옵션), author, committer, 메시지
+* 형식: `commit <크기>\0<본문>`
+* zlib로 압축 후 저장하고 `HEAD`를 업데이트합니다.
+
+## 5️⃣ 구현 요약
+
+### 5.1 `init`
+
+```js
+function init() {
+  const gitDir = path.join(process.cwd(), '.git');
+  fs.mkdirSync(gitDir);
+  fs.mkdirSync(path.join(gitDir, 'objects'));
+  fs.writeFileSync(path.join(gitDir, 'HEAD'), '');
+  fs.writeFileSync(path.join(gitDir, 'index'), '');
+  console.log('Initialized empty Git repository in .git/');
+}
+```
+
+### 5.2 `add`
+
+* 워킹 디렉토리의 변경 파일을 탐색합니다.
+* 각 파일에 대해 Blob 객체를 생성하고 저장합니다.
+* `index` 파일에 `mode hash stage path` 형식으로 기록합니다.
+
+### 5.3 `commit`
+
+* `index` 파일을 읽어 Tree 객체를 생성 및 저장합니다.
+* Commit 객체를 생성하고 저장합니다.
+* `HEAD`에 새 커밋 해시를 기록합니다.
+
+### 5.4 `log`
+
+* `HEAD`에서 시작해 부모 커밋을 순차적으로 읽어옵니다.
+* 각 Commit 객체를 파싱하여 히스토리를 출력합니다.
+
+## 6️⃣ 개선 및 확장 과제
+
+* `.깃` 디렉토리 이름을 `.git`으로 통일하여 실제 Git과 호환성을 높입니다.
+* `branch` 명령어: `.git/refs/heads/` 관리
+* `switch` 명령어: `HEAD` 참조 변경
+* `status` 명령어: 워킹 트리, index, HEAD 비교
+* `clone` 명령어: 원격 리포지토리 복제 로직
+* 테스트 코드 작성 (Jest)
+* Windows 환경 및 오류 처리 강화
+
+## 7️⃣ 사용 방법
+
+```bash
+# 리포지토리 초기화
+node git.js init
+
+# 파일 추가
+node git.js add src/
+
+# 커밋
+node git.js commit -m "커밋 메시지"
+
+# 로그 조회
+node git.js log
+```
+
+## 8️⃣ 프로젝트 구조
+
+```
+.
+├── git.js                 # 진입점 스크립트
+├── src/
+│   ├── parser.js          # 명령어 파서
+│   ├── commands/
+│   │   ├── init.js
+│   │   ├── add.js
+│   │   ├── commit.js
+│   │   └── log.js
+│   └── utils/             # 공통 유틸리티 함수
+└── package.json
+```
+
+## 9️⃣ 향후 계획
+
+* `branch`, `switch`, `status`, `clone` 명령어 완전 구현
+* CI/CD 연동 및 자동 테스트 파이프라인 구축
+* 대규모 리포지토리 성능 최적화
+
+## 🔖 라이선스
+
+MIT 라이선스
+
+```
+
+</details>
