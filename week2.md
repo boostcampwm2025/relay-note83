@@ -275,7 +275,9 @@ README의 가장 상단에 이 프로젝트가 무엇을 하는 프로젝트인
 
 <img width="540" height="630" alt="image" src="https://github.com/user-attachments/assets/1c906076-3b39-4003-9d16-a73f548bb8fb" />
 
-```md
+<details>
+<summary>README. 결과</summary>
+
 # Git 동작 시뮬레이션 프로젝트
 
 ## 1️⃣ 학습 목표
