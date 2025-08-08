@@ -190,15 +190,25 @@ AI에게 힐링 퀘스트를 추천받아서 해보니, 내가 직접 고민해�
 
 ## 선택 퀘스트
 
+**✅ 퀘스트 3. AI에게 테스트케이스 생성 요청하기 (with README 흐름 기반)**
+
 ## 활동 사항
 
 <details>
 <summary>눌러 보기</summary>
 
+GEMINI CLI 대신 GEMINI에 프로젝트 폴더 전체를 올려 README.md 와 내가 만든 테스트 명세서를 기준으로 테스트 코드를 작성해달라고 요청해보았다.
+  
+<img width="695" height="677" alt="image-8" src="https://github.com/user-attachments/assets/83e93085-64da-4698-bc4a-00d54461c26a" />
+
+<img width="646" height="784" alt="image-9" src="https://github.com/user-attachments/assets/17cbfd33-39e0-4682-b996-b5750c6a358e" />
+
+
 </details>
 
 ## 느낀점 및 결론
 
+나의 시나리오를 토대로 좀 더 개선해서 추가할 내용을 넣어서 테스트 코드를 만들어 주어서 좋았다. 하지만, 처음에는 FAIL이 뜨는 테스트 케이스가 존재 했는데, `EADDRINUSE`, `Timeout`, `toContain` 불일치 등 다양한 에러를 발견했다. 이는 코드를 직접 실행하고 발견해야하는 인간이 실제 환경에서 코드를 실행하는 것에서 발생하는 문제가 존재하기에 발생하는 현상이였다. 이를 다시 AI에게 진단하게 하고, 테스트 코드를 수정 받아 최종적으로는 매우 잘 만들어진 테스트 코드를 만들 수 있었다.
 ---
 
 ## 🥸 S033\_정영빈
